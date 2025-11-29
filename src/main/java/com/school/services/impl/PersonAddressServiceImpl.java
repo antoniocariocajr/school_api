@@ -1,0 +1,45 @@
+package com.school.services.impl;
+
+import com.school.controllers.dto.address.AddressCreateRequest;
+import com.school.persistence.entities.Address;
+import com.school.persistence.entities.Person;
+import com.school.persistence.entities.PersonAddress;
+import com.school.persistence.repositories.AddressRepository;
+import com.school.persistence.repositories.PersonAddressRepository;
+import com.school.persistence.repositories.PersonRepository;
+import com.school.services.PersonAddressService;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.UUID;
+
+import static org.springframework.http.HttpStatus.NOT_FOUND;
+
+@Service
+@RequiredArgsConstructor
+public class PersonAddressServiceImpl implements PersonAddressService {
+    private final AddressRepository addressRepository;
+    private final PersonAddressRepository personAddressRepository;
+    private final PersonRepository personRepository;
+
+    @Transactional
+    @Override
+    public Address addPersonAddress(UUID personId, AddressCreateRequest request) {
+        Person person = personRepository.findById(personId)
+                .orElseThrow(()-> new ResponseStatusException(NOT_FOUND));
+        Address address = addressRepository.save(request.toEntity());
+        person.addAddress(address,request.typeAddress());
+        personRepository.save(person);// cascade já salva PersonAddress
+        return address;
+    }
+
+    @Override
+    public Address findCurrentByPersonAndType(UUID personId, PersonAddress.TypeAddress typeAddress) {
+        return personAddressRepository
+                .findCurrentByPersonAndTypeAddress(personId,typeAddress)
+                .map(PersonAddress::getAddress)
+                .orElseThrow(()-> new ResponseStatusException(NOT_FOUND));
+    }
+}
