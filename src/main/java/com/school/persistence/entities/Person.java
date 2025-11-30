@@ -38,6 +38,8 @@ public class Person implements Serializable {
     private String phone;
     @Column(nullable = false)
     private String email;
+    @Column(name = "picture_key", length = 150)
+    private String pictureKey; // path no S3 ou disco
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<PersonAddress> addresses = new HashSet<>();
 
