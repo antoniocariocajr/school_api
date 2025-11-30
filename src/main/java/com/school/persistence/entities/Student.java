@@ -21,6 +21,10 @@ public class Student {
     @JoinColumn(name = "user_id", unique = true)
     private User user;
 
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "person_id", unique = true, nullable = false)
+    private Person person;
+
     @Column(name = "enrollment_number", unique = true, nullable = false)
     private String enrollmentNumber;
 

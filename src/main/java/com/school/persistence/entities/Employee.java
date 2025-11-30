@@ -19,6 +19,10 @@ public class Employee {
     @JoinColumn(name = "user_id", unique = true)
     private User user;
 
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "person_id", unique = true, nullable = false)
+    private Person person;
+
     @Column(name = "registration_code", unique = true, nullable = false)
     private String registrationCode; // código interno da escola
 

@@ -21,6 +21,10 @@ public class Guardian {
     @JoinColumn(name = "user_id", unique = true, nullable = false)
     private User user;
 
+    @OneToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "person_id", unique = true, nullable = false)
+    private Person person;
+
     @Column(name = "kinship", length = 30)
     private String kinship; // pai, mãe, avó, tutor, etc.
 

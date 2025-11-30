@@ -2,6 +2,7 @@ package com.school.persistence.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
@@ -30,9 +31,6 @@ public class User {
     @Column(nullable = false, unique = true, length = 120)
     private String email;
 
-    @Column(nullable = false)
-    private String passwordHash; // BCrypt
-
     @Enumerated(EnumType.STRING)
     @Column(length = 15, nullable = false)
     private Role role;
@@ -42,7 +40,7 @@ public class User {
     @Column(name = "last_access")
     private Instant lastAccess;
 
-    @CreatedDate
+    @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
 
@@ -60,7 +58,8 @@ public class User {
         TEACHER(2L),
         STUDENT(3L),
         PARENT(4L),
-        EMPLOYEE(5L);
+        EMPLOYEE(5L),
+        GUARDIAN(6L);
         private final long id;
     }
 }

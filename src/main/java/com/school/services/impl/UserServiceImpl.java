@@ -1,46 +1,52 @@
 package com.school.services.impl;
 
-import com.school.controllers.dto.user.CreateUserRequest;
-import com.school.persistence.entities.Person;
 import com.school.persistence.entities.User;
-import com.school.persistence.repositories.PersonRepository;
 import com.school.persistence.repositories.UserRepository;
 import com.school.services.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
-    private final PersonRepository personRepository;
-    private final BCryptPasswordEncoder passwordEncoder;
 
-    @Transactional    @Override
-    public User createUser(CreateUserRequest request) {
-        if (userRepository.existsByEmail(request.email()))
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email já cadastrado");
 
-        Person person = personRepository.save(
-                Person.builder()
-                        .name(request.name())
-                        .cpf(request.cpf())
-                        .birthDate(request.birthDate())
-                        .phone(request.phone())
-                        .build());
+    @Override
+    public Optional<User> findByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
 
-        User user = User.builder()
-                .person(person)
-                .email(request.email())
-                .passwordHash(passwordEncoder.encode(request.password()))
-                .role(request.role())
-                .build();
+    @Override
+    public Page<User> findAll(Pageable pageable) {
+        return userRepository.findAll(pageable);
+    }
 
+    @Transactional
+    @Override
+    public User updateRole(UUID userId, User.Role newRole) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        user.setRole(newRole);
         return userRepository.save(user);
+    }
+
+    @Transactional
+    @Override
+    public void deactivate(UUID userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        user.setActive(false);
+        userRepository.save(user);
     }
 }
