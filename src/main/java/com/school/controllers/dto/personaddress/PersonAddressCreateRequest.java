@@ -1,15 +1,16 @@
-package com.school.controllers.dto.address;
+package com.school.controllers.dto.personaddress;
 
 import com.school.persistence.entities.Address;
+import com.school.persistence.entities.PersonAddress.TypeAddress;
 
-public record AddressCreateRequest(
-        String street,
+public record PersonAddressCreateRequest(String street,
         String city,
         String state,
         String zipCode,
-        String country) {
+        String country,
+        TypeAddress typeAddress) {
 
-    public Address toEntity() {
+    public Address toAddress() {
         return Address.builder()
                 .street(street)
                 .city(city)
@@ -18,4 +19,5 @@ public record AddressCreateRequest(
                 .country(country)
                 .build();
     }
+
 }

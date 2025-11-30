@@ -7,6 +7,7 @@ import com.school.services.mapper.UserMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -15,8 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.core.oidc.user.OidcUser;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -29,15 +28,18 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
+@Tag(name = "Auth", description = "Login com OAuth2 (sessão)")
 public class AuthenticationController {
 
     private final UserMapper mapper;
     private final UserService userService;
 
-    @Operation(summary = "Authentication", description = "após login com google entra no sistema")
-    @ApiResponses(value = {
-            @ApiResponse(responseCode = "200", description = "user login successful!"),
-            @ApiResponse(responseCode = "401", description = "user unauthorized!") })
+    @Operation(summary = "Dados do usuário logado", description = "Requer sessão OAuth2 (cookie)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Usuário encontrado"),
+            @ApiResponse(responseCode = "401", description = "Não autenticado"),
+            @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
+    })
     @GetMapping("/me")
     public ResponseEntity<UserDto> me(@AuthenticationPrincipal Authentication auth) {
 
@@ -51,6 +53,11 @@ public class AuthenticationController {
     }
 
     /* Spring Security já cuida do logout – expomos só para documentar */
+    @Operation(summary = "Logout", description = "Requer sessão OAuth2 (cookie)")
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Logout realizado"),
+            @ApiResponse(responseCode = "401", description = "Não autenticado")
+    })
     @PostMapping("/logout")
     public ResponseEntity<?> logout(HttpServletRequest req, HttpServletResponse resp) {
         new SecurityContextLogoutHandler().logout(req, resp, SecurityContextHolder.getContext().getAuthentication());

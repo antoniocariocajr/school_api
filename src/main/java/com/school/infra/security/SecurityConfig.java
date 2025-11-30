@@ -40,7 +40,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         /* rotas públicas */
                         .requestMatchers("/", "/login", "/oauth2/**", "/api/auth/**").permitAll()
-                        .requestMatchers("/api/auth/me").authenticated()
+                        //.requestMatchers("/api/auth/me").authenticated()
                         /* swagger  */
                         .requestMatchers("/swagger-ui/**",
                                 "/v3/api-docs/**",

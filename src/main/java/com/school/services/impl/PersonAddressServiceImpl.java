@@ -1,6 +1,6 @@
 package com.school.services.impl;
 
-import com.school.controllers.dto.address.AddressCreateRequest;
+import com.school.controllers.dto.personaddress.PersonAddressCreateRequest;
 import com.school.persistence.entities.Address;
 import com.school.persistence.entities.Person;
 import com.school.persistence.entities.PersonAddress;
@@ -20,17 +20,19 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 @Service
 @RequiredArgsConstructor
 public class PersonAddressServiceImpl implements PersonAddressService {
+
     private final AddressRepository addressRepository;
     private final PersonAddressRepository personAddressRepository;
     private final PersonRepository personRepository;
 
     @Transactional
     @Override
-    public Address addPersonAddress(UUID personId, AddressCreateRequest request) {
+    public Address addPersonAddress(UUID personId, PersonAddressCreateRequest request) {
+
         Person person = personRepository.findById(personId)
-                .orElseThrow(()-> new ResponseStatusException(NOT_FOUND));
-        Address address = addressRepository.save(request.toEntity());
-        person.addAddress(address,request.typeAddress());
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
+        Address address = addressRepository.save(request.toAddress());
+        person.addAddress(address, request.typeAddress());
         personRepository.save(person);// cascade já salva PersonAddress
         return address;
     }
@@ -38,8 +40,29 @@ public class PersonAddressServiceImpl implements PersonAddressService {
     @Override
     public Address findCurrentByPersonAndType(UUID personId, PersonAddress.TypeAddress typeAddress) {
         return personAddressRepository
-                .findCurrentByPersonAndTypeAddress(personId,typeAddress)
+                .findCurrentByPersonAndTypeAddress(personId, typeAddress)
                 .map(PersonAddress::getAddress)
-                .orElseThrow(()-> new ResponseStatusException(NOT_FOUND));
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
+    }
+
+    @Transactional
+    @Override
+    public Address updateCurrentByPersonAndType(UUID personId, PersonAddressCreateRequest request) {
+        Person person = personRepository.findById(personId)
+                .orElseThrow(() -> new ResponseStatusException(NOT_FOUND));
+        Address address = addressRepository.save(request.toAddress());
+        person.addAddress(address, request.typeAddress());
+        personRepository.save(person);// cascade já salva PersonAddress
+        return address;
+    }
+
+    @Transactional
+    @Override
+    public void deleteCurrentByPersonAndType(UUID personId, PersonAddress.TypeAddress typeAddress) {
+        if (personRepository.existsById(personId)) {
+            personAddressRepository.deleteCurrentByPersonAndTypeAddress(personId, typeAddress);
+        } else {
+            throw new ResponseStatusException(NOT_FOUND);
+        }
     }
 }

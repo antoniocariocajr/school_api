@@ -7,7 +7,11 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "attendance")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Attendance {
 
     @Id
@@ -29,7 +33,9 @@ public class Attendance {
     @Column(length = 20, nullable = false)
     private Status status = Status.PRESENT;
 
-    public enum Status { PRESENT, JUSTIFIED_ABSENCE, UNJUSTIFIED_ABSENCE }
+    public enum Status {
+        PRESENT, JUSTIFIED_ABSENCE, UNJUSTIFIED_ABSENCE
+    }
 
     @Column(name = "created_by", length = 120)
     private String createdBy; // email do professor que chamou

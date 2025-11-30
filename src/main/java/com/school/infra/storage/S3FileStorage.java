@@ -7,7 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
-import org.springframework.core.io.UrlResource;
+//import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.ResponseInputStream;
@@ -17,7 +17,7 @@ import software.amazon.awssdk.services.s3.model.*;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
+//import java.net.URL;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -57,7 +57,7 @@ public class S3FileStorage implements FileStorage {
 
     @Override
     public Resource load(String storageKey) {
-         try {
+        try {
             GetObjectRequest getReq = GetObjectRequest.builder()
                     .bucket(bucket)
                     .key(storageKey)
