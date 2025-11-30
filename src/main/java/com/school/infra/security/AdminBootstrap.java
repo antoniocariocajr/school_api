@@ -20,10 +20,10 @@ public class AdminBootstrap implements ApplicationRunner {
     private final PersonRepository personRepo;
     private final UserRepository userRepo;
 
-    @Value("${admin.email:admin@escola.local}")
+    @Value("${admin.email:antoniocariocajr@gmail.com}")
     private String adminEmail;
 
-    @Value("${admin.name:System Admin}")
+    @Value("${admin.name:Antonio Carioca Jr}")
     private String adminName;
 
     @Override

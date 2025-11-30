@@ -8,10 +8,10 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
-import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.oidc.OidcUserInfo;
 import org.springframework.security.oauth2.core.oidc.user.DefaultOidcUser;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
@@ -30,19 +30,21 @@ import java.util.Map;
 public class SecurityConfig {
 
     private final CustomOAuth2UserService oauth2UserService;
-    //private final OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService;
 
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfig()))
-                .csrf(csrf -> csrf.disable())
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth
                         /* rotas públicas */
                         .requestMatchers("/", "/login", "/oauth2/**", "/api/auth/**").permitAll()
+                        .requestMatchers("/api/auth/me").authenticated()
                         /* swagger  */
-                        .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui.html").permitAll()
                         /* tudo o resto precisa de autorização */
                         .anyRequest().authenticated()
                 )
@@ -51,6 +53,7 @@ public class SecurityConfig {
                                 .oidcUserService(oidcUserService())  // Google
                                 .userService(oauth2UserService) // GitHub / outros
                         )
+                        .defaultSuccessUrl("/api/auth/me", true)
                         .successHandler((req, resp, auth) -> {
                             resp.setContentType("application/json");
                             resp.setStatus(HttpServletResponse.SC_OK);
