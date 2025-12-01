@@ -8,7 +8,10 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "address")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class Address {
 
@@ -37,6 +40,7 @@ public class Address {
     @Column(nullable = false, length = 2)
     private String state;
 
+    @Builder.Default
     @Column(length = 2)
     private String country = "BR";
 
@@ -51,6 +55,7 @@ public class Address {
         createdAt = Instant.now();
         updatedAt = createdAt;
     }
+
     @PreUpdate
     protected void onUpdate() {
         updatedAt = Instant.now();

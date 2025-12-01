@@ -8,7 +8,11 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "fee")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Fee {
 
     @Id
@@ -28,17 +32,21 @@ public class Fee {
     @Column(name = "original_value", nullable = false, precision = 10, scale = 2)
     private BigDecimal originalValue;
 
+    @Builder.Default
     @Column(name = "fine", precision = 10, scale = 2)
     private BigDecimal fine = BigDecimal.ZERO;
 
     @Column(name = "paid_date")
     private LocalDate paidDate;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(length = 15, nullable = false)
     private Status status = Status.PENDING;
 
-    public enum Status { PENDING, PAID, OVERDUE, WAIVED }
+    public enum Status {
+        PENDING, PAID, OVERDUE, WAIVED
+    }
 
     /* valor final = original + fine */
     public BigDecimal getTotalValue() {

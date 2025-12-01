@@ -11,10 +11,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
-
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder @Getter @Setter
+@Builder
+@Getter
+@Setter
 @Entity
 @Table(name = "persons")
 public class Person implements Serializable {
@@ -40,7 +41,9 @@ public class Person implements Serializable {
     private String email;
     @Column(name = "picture_key", length = 150)
     private String pictureKey; // path no S3 ou disco
+
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
     private Set<PersonAddress> addresses = new HashSet<>();
 
     public void addAddress(Address address, PersonAddress.TypeAddress type) {
@@ -58,7 +61,6 @@ public class Person implements Serializable {
                 .build();
         addresses.add(newPa);
     }
-
 
     @Getter
     @AllArgsConstructor

@@ -6,7 +6,11 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "school_class")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class SchoolClass {
 
     @Id
@@ -28,12 +32,16 @@ public class SchoolClass {
     @Column(name = "class_code", unique = true, nullable = false, length = 30)
     private String code; // 2025-1-MAT-I-A
 
+    @Builder.Default
     @Column(name = "max_students")
     private Integer maxStudents = 50;
 
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     @Column(length = 15, nullable = false)
     private Status status = Status.ACTIVE;
 
-    public enum Status { ACTIVE, CANCELED, COMPLETED }
+    public enum Status {
+        ACTIVE, CANCELED, COMPLETED
+    }
 }

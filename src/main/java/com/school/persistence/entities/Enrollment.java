@@ -8,7 +8,11 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "enrollment")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Enrollment {
 
     @Id
@@ -26,6 +30,7 @@ public class Enrollment {
     @Column(name = "enrollment_date", nullable = false)
     private LocalDate enrollmentDate;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(length = 15, nullable = false)
     private Status status = Status.ACTIVE;
@@ -37,6 +42,8 @@ public class Enrollment {
     @Column(name = "final_attendance", precision = 5, scale = 2)
     private BigDecimal finalAttendance; // percentual 0-100
 
-    public enum Status { ACTIVE, LOCKED, CANCELED, COMPLETED }
+    public enum Status {
+        ACTIVE, LOCKED, CANCELED, COMPLETED
+    }
 
 }

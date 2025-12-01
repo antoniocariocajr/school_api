@@ -6,7 +6,11 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "room")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Room {
 
     @Id
@@ -19,10 +23,14 @@ public class Room {
     private Integer capacity;
 
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     @Column(length = 20, nullable = false)
     private TypeRoom type = TypeRoom.REGULAR;
 
-    public enum TypeRoom { REGULAR, LAB, COMPUTER, AUDITORIUM, GYM }
+    public enum TypeRoom {
+        REGULAR, LAB, COMPUTER, AUDITORIUM, GYM
+    }
 
+    @Builder.Default
     private Boolean active = true;
 }

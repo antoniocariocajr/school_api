@@ -7,7 +7,11 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "event")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Event {
 
     @Id
@@ -26,15 +30,19 @@ public class Event {
     @Column(name = "end_date", nullable = false)
     private LocalDateTime endDate;
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(length = 20, nullable = false)
     private TypeEvent typeEvent = TypeEvent.GENERAL;
 
-    public enum TypeEvent { EXAM, MEETING, HOLIDAY, VACATION, GENERAL }
+    public enum TypeEvent {
+        EXAM, MEETING, HOLIDAY, VACATION, GENERAL
+    }
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "school_term_id")
     private SchoolTerm schoolTerm;
 
+    @Builder.Default
     private Boolean active = true;
 }

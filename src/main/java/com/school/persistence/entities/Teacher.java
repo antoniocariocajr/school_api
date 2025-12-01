@@ -8,7 +8,11 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "teacher")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Teacher {
 
     @Id
@@ -31,5 +35,6 @@ public class Teacher {
 
     private LocalDate leaveDate;
 
+    @Builder.Default
     private Boolean active = true;
 }

@@ -10,7 +10,11 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "schedule")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Schedule {
 
     @Id
@@ -22,9 +26,7 @@ public class Schedule {
     private SchoolClass schoolClass;
 
     @ManyToMany
-    @JoinTable(name = "schedule_room",
-            joinColumns = @JoinColumn(name = "schedule_id"),
-            inverseJoinColumns = @JoinColumn(name = "room_id"))
+    @JoinTable(name = "schedule_room", joinColumns = @JoinColumn(name = "schedule_id"), inverseJoinColumns = @JoinColumn(name = "room_id"))
     @Builder.Default
     private Set<Room> rooms = new HashSet<>();
 
@@ -38,5 +40,6 @@ public class Schedule {
     @Column(name = "end_time", nullable = false)
     private LocalTime endTime;
 
+    @Builder.Default
     private Boolean active = true;
 }

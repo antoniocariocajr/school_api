@@ -3,6 +3,7 @@ package com.school.persistence.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +11,11 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "payment_plan")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class PaymentPlan {
 
     @Id
@@ -37,11 +42,14 @@ public class PaymentPlan {
     @Column(name = "due_day", nullable = false)
     private Integer dueDay; // dia do mês (1-31)
 
+    @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(length = 15, nullable = false)
     private Status status = Status.ACTIVE;
 
-    public enum Status { ACTIVE, CANCELED, PAID }
+    public enum Status {
+        ACTIVE, CANCELED, PAID
+    }
 
     @OneToMany(mappedBy = "paymentPlan", cascade = CascadeType.ALL, orphanRemoval = true)
     @Builder.Default
@@ -51,7 +59,7 @@ public class PaymentPlan {
     public void generateFees() {
         fees.clear();
         BigDecimal base = totalValue.subtract(discount);
-        BigDecimal installmentValue = base.divide(BigDecimal.valueOf(installmentCount), 2, BigDecimal.ROUND_HALF_EVEN);
+        BigDecimal installmentValue = base.divide(BigDecimal.valueOf(installmentCount), 2, RoundingMode.HALF_EVEN);
 
         LocalDate start = schoolTerm.getStartDate().withDayOfMonth(dueDay);
         for (int i = 0; i < installmentCount; i++) {

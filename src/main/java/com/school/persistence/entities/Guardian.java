@@ -9,7 +9,11 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "guardian")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Guardian {
 
     @Id
@@ -28,13 +32,17 @@ public class Guardian {
     @Column(name = "kinship", length = 30)
     private String kinship; // pai, mãe, avó, tutor, etc.
 
+    @Builder.Default
     private Boolean financialResponsible = false;
 
+    @Builder.Default
     private Boolean legalResponsible = false;
 
+    @Builder.Default
     /* bidirecional opcional – lista de alunos que é responsável */
     @ManyToMany(mappedBy = "legalGuardians")
     private Set<Student> students = new HashSet<>();
 
+    @Builder.Default
     private Boolean active = true;
 }

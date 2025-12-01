@@ -7,7 +7,11 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "report_card")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class ReportCard {
 
     @Id
@@ -29,10 +33,13 @@ public class ReportCard {
     private BigDecimal finalAttendance; // percentual 0-100
 
     @Enumerated(EnumType.STRING)
+    @Builder.Default
     @Column(length = 20, nullable = false)
     private Status status = Status.IN_PROGRESS;
 
-    public enum Status { IN_PROGRESS, APPROVED, RECOVERY, FAILED }
+    public enum Status {
+        IN_PROGRESS, APPROVED, RECOVERY, FAILED
+    }
 
     @Column(columnDefinition = "TEXT")
     private String remarks; // observações do professor / coordenador

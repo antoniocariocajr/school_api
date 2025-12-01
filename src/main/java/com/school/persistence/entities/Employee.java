@@ -8,7 +8,11 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "employee")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Employee {
 
     @Id
@@ -35,8 +39,11 @@ public class Employee {
     @Column(length = 30, nullable = false)
     private Role role;
 
+    @Builder.Default
     private Boolean active = true;
 
-    public enum Role { SECRETARY, COORDINATOR, PRINCIPAL, FINANCIAL, SUPPORT }
+    public enum Role {
+        SECRETARY, COORDINATOR, PRINCIPAL, FINANCIAL, SUPPORT
+    }
 
 }

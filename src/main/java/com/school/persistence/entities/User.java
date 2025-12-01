@@ -3,7 +3,6 @@ package com.school.persistence.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
@@ -35,6 +34,7 @@ public class User {
     @Column(length = 15, nullable = false)
     private Role role;
 
+    @Builder.Default
     private boolean active = true;
 
     @Column(name = "last_access")
@@ -52,7 +52,9 @@ public class User {
     public void updateLastAccess() {
         this.lastAccess = Instant.now();
     }
-    @Getter @AllArgsConstructor
+
+    @Getter
+    @AllArgsConstructor
     public enum Role {
         ADMIN(1L),
         TEACHER(2L),
@@ -60,8 +62,7 @@ public class User {
         PARENT(4L),
         EMPLOYEE(5L),
         GUARDIAN(6L);
+
         private final long id;
     }
 }
-
-

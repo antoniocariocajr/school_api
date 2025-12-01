@@ -10,7 +10,11 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "student")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Student {
 
     @Id
@@ -40,10 +44,10 @@ public class Student {
     private Guardian financialGuardian;
 
     @ManyToMany
-    @JoinTable(name = "student_legal_guardian",
-            joinColumns = @JoinColumn(name = "student_id"),
-            inverseJoinColumns = @JoinColumn(name = "guardian_id"))
+    @Builder.Default
+    @JoinTable(name = "student_legal_guardian", joinColumns = @JoinColumn(name = "student_id"), inverseJoinColumns = @JoinColumn(name = "guardian_id"))
     private Set<Guardian> legalGuardians = new HashSet<>();
 
+    @Builder.Default
     private Boolean active = true;
 }

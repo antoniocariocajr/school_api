@@ -8,7 +8,11 @@ import java.util.UUID;
 
 @Entity
 @Table(name = "grade")
-@Getter @Setter @NoArgsConstructor @AllArgsConstructor @Builder
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Grade {
 
     @Id
@@ -23,11 +27,14 @@ public class Grade {
     @Column(length = 20, nullable = false)
     private TypeGrade typeGrade; // P1, P2, TRABALHO, RECUPERACAO
 
-    public enum TypeGrade { P1, P2, TRABALHO, RECUPERACAO }
+    public enum TypeGrade {
+        P1, P2, TRABALHO, RECUPERACAO
+    }
 
     @Column(nullable = false, precision = 5, scale = 2)
     private BigDecimal value;
 
+    @Builder.Default
     @Column(nullable = false, precision = 5, scale = 2)
     private BigDecimal weight = BigDecimal.ONE;
 
