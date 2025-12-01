@@ -7,4 +7,6 @@ import java.util.UUID;
 
 public interface GuardianRepository extends JpaRepository<Guardian, UUID> {
     boolean existsByPersonId(UUID personId);
+
+    boolean existsByPerson(com.school.persistence.entities.Person person);
 }
