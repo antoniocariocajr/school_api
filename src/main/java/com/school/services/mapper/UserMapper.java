@@ -7,7 +7,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class UserMapper {
     public UserDto toDto(User user) {
-        if (user == null) return null;
+        if (user == null)
+            return null;
 
         return new UserDto(
                 user.getId(),
@@ -15,7 +16,6 @@ public class UserMapper {
                 user.getRole(),
                 user.isActive(),
                 user.getPerson().getId(),
-                user.getPerson().getName()
-        );
+                user.getPerson().getName());
     }
 }

@@ -1,9 +1,7 @@
 package com.school.controllers;
 
 import com.school.controllers.dto.user.UserDto;
-import com.school.persistence.entities.User;
 import com.school.services.UserService;
-import com.school.services.mapper.UserMapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -29,7 +27,6 @@ import org.springframework.web.server.ResponseStatusException;
 @Tag(name = "Auth", description = "Login com OAuth2 (sessão)")
 public class AuthenticationController {
 
-    private final UserMapper mapper;
     private final UserService userService;
 
     @Operation(summary = "Dados do usuário logado", description = "Requer sessão OAuth2 (cookie)")
@@ -44,14 +41,10 @@ public class AuthenticationController {
 
         if (auth == null || !auth.isAuthenticated())
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
-
         String email = auth.getName();
-        User user = userService.findByEmail(email)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        return mapper.toDto(user);
+        return userService.findByEmail(email);
     }
 
-    /* Spring Security já cuida do logout – expomos só para documentar */
     @Operation(summary = "Logout", description = "Requer sessão OAuth2 (cookie)")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Logout realizado"),

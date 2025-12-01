@@ -11,13 +11,17 @@ import java.util.UUID;
 
 public interface EnrollmentRepository extends JpaRepository<Enrollment, UUID> {
     Optional<Enrollment> findByStudentIdAndSchoolClassId(UUID studentId, UUID schoolClassId);
+
     List<Enrollment> findByStudentId(UUID studentId);
+
     List<Enrollment> findBySchoolClassId(UUID schoolClassId);
+
     boolean existsByStudentIdAndSchoolClassId(UUID studentId, UUID schoolClassId);
+
     @Query("""
-        SELECT e
-        FROM Enrollment e
-        WHERE e.schoolClass.schoolTerm.id = :schoolTermId
-    """)
+                SELECT e
+                FROM Enrollment e
+                WHERE e.schoolClass.schoolTerm.id = :schoolTermId
+            """)
     List<Enrollment> findBySchoolTermId(@Param("schoolTermId") UUID schoolTermId);
 }

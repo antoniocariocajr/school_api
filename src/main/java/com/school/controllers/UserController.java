@@ -3,7 +3,6 @@ package com.school.controllers;
 import com.school.controllers.dto.user.UserDto;
 import com.school.persistence.entities.User;
 import com.school.services.UserService;
-import com.school.services.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -13,7 +12,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.server.ResponseStatusException;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -31,7 +29,6 @@ import java.util.UUID;
 public class UserController {
 
     private final UserService service;
-    private final UserMapper mapper;
 
     @GetMapping("/me")
     @Operation(summary = "Dados do usuário logado", description = "Requer sessão OAuth2 (cookie)")
@@ -42,9 +39,7 @@ public class UserController {
     })
     @ResponseStatus(HttpStatus.OK)
     public UserDto me(@AuthenticationPrincipal OAuth2User principal) {
-        return service.findByEmail(principal.getName())
-                .map(mapper::toDto)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return service.findByEmail(principal.getName());
     }
 
     @GetMapping
@@ -57,7 +52,7 @@ public class UserController {
     })
     @ResponseStatus(HttpStatus.OK)
     public Page<UserDto> list(Pageable page) {
-        return service.findAll(page).map(mapper::toDto);
+        return service.findAll(page);
     }
 
     @PatchMapping("/{id}/role")
@@ -71,7 +66,7 @@ public class UserController {
     })
     @ResponseStatus(HttpStatus.OK)
     public UserDto updateRole(@PathVariable UUID id, @RequestParam User.Role role) {
-        return mapper.toDto(service.updateRole(id, role));
+        return service.updateRole(id, role);
     }
 
     @DeleteMapping("/{id}")

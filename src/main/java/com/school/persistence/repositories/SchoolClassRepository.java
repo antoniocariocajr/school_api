@@ -8,6 +8,10 @@ import java.util.UUID;
 
 public interface SchoolClassRepository extends JpaRepository<SchoolClass, UUID> {
     List<SchoolClass> findByDisciplineId(UUID disciplineId);
+
     List<SchoolClass> findByTeacherId(UUID teacherId);
+
     List<SchoolClass> findBySchoolTermId(UUID schoolTermId);
+
+    boolean existsByCode(String code);
 }
