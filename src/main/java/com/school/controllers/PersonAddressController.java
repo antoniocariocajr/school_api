@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.school.controllers.dto.address.AddressDto;
@@ -33,68 +35,73 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PersonAddressController {
 
-    private final PersonAddressService service;
+        private final PersonAddressService service;
 
-    @GetMapping("/{id}/addresses")
-    @Operation(summary = "Get addresses by person id")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Addresses found"),
-            @ApiResponse(responseCode = "404", description = "Person not found")
-    })
-    public Page<AddressDto> getAddressesByPersonId(@PathVariable UUID id, Pageable pageable) {
-        return service.getAddressesByPersonId(id, pageable);
-    }
+        @GetMapping("/{id}/addresses")
+        @Operation(summary = "Get addresses by person id")
+        @ApiResponses({
+                        @ApiResponse(responseCode = "200", description = "Addresses found"),
+                        @ApiResponse(responseCode = "404", description = "Person not found")
+        })
+        @ResponseStatus(HttpStatus.OK)
+        public Page<AddressDto> getAddressesByPersonId(@PathVariable UUID id, Pageable pageable) {
+                return service.getAddressesByPersonId(id, pageable);
+        }
 
-    @GetMapping("/{id}/addresses/current")
-    @Operation(summary = "Get current address by person id")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Address found"),
-            @ApiResponse(responseCode = "404", description = "Person not found")
-    })
-    public AddressDto getCurrentAddressByPersonId(@PathVariable UUID id) {
-        return service.getCurrentAddressByPersonId(id);
-    }
+        @GetMapping("/{id}/addresses/current")
+        @Operation(summary = "Get current address by person id")
+        @ApiResponses({
+                        @ApiResponse(responseCode = "200", description = "Address found"),
+                        @ApiResponse(responseCode = "404", description = "Person not found")
+        })
+        @ResponseStatus(HttpStatus.OK)
+        public AddressDto getCurrentAddressByPersonId(@PathVariable UUID id) {
+                return service.getCurrentAddressByPersonId(id);
+        }
 
-    @GetMapping("/{id}/addresses/{typeAddress}")
-    @Operation(summary = "Get address by person id and type address")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Address found"),
-            @ApiResponse(responseCode = "404", description = "Person not found")
-    })
-    public AddressDto getAddressByPersonIdAndTypeAddress(@PathVariable UUID id,
-            @PathVariable PersonAddress.TypeAddress typeAddress) {
-        return service.findCurrentByPersonAndType(id, typeAddress);
-    }
+        @GetMapping("/{id}/addresses/{typeAddress}")
+        @Operation(summary = "Get address by person id and type address")
+        @ApiResponses({
+                        @ApiResponse(responseCode = "200", description = "Address found"),
+                        @ApiResponse(responseCode = "404", description = "Person not found")
+        })
+        @ResponseStatus(HttpStatus.OK)
+        public AddressDto getAddressByPersonIdAndTypeAddress(@PathVariable UUID id,
+                        @PathVariable PersonAddress.TypeAddress typeAddress) {
+                return service.findCurrentByPersonAndType(id, typeAddress);
+        }
 
-    @PutMapping("/{id}/addresses")
-    @Operation(summary = "Update address by person id and type address")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Address updated"),
-            @ApiResponse(responseCode = "404", description = "Person not found")
-    })
-    public AddressDto updateAddressByPersonIdAndTypeAddress(@PathVariable UUID id,
-            @RequestBody PersonAddressCreateRequest request) {
-        return service.updateCurrentByPersonAndType(id, request);
-    }
+        @PutMapping("/{id}/addresses")
+        @Operation(summary = "Update address by person id and type address")
+        @ApiResponses({
+                        @ApiResponse(responseCode = "200", description = "Address updated"),
+                        @ApiResponse(responseCode = "404", description = "Person not found")
+        })
+        public AddressDto updateAddressByPersonIdAndTypeAddress(@PathVariable UUID id,
+                        @RequestBody PersonAddressCreateRequest request) {
+                return service.updateCurrentByPersonAndType(id, request);
+        }
 
-    @DeleteMapping("/{id}/addresses/current")
-    @Operation(summary = "Delete current address by person id")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Address deleted"),
-            @ApiResponse(responseCode = "404", description = "Person not found")
-    })
-    public void deleteCurrentAddressByPersonId(@PathVariable UUID id) {
-        service.deleteCurrentAddressByPersonId(id);
-    }
+        @DeleteMapping("/{id}/addresses/current")
+        @Operation(summary = "Delete current address by person id")
+        @ApiResponses({
+                        @ApiResponse(responseCode = "200", description = "Address deleted"),
+                        @ApiResponse(responseCode = "404", description = "Person not found")
+        })
+        @ResponseStatus(HttpStatus.NO_CONTENT)
+        public void deleteCurrentAddressByPersonId(@PathVariable UUID id) {
+                service.deleteCurrentAddressByPersonId(id);
+        }
 
-    @DeleteMapping("/{id}/addresses/{typeAddress}")
-    @Operation(summary = "Delete address by person id and type address")
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Address deleted"),
-            @ApiResponse(responseCode = "404", description = "Person not found")
-    })
-    public void deleteAddressByPersonIdAndTypeAddress(@PathVariable UUID id,
-            @PathVariable PersonAddress.TypeAddress typeAddress) {
-        service.deleteCurrentByPersonAndType(id, typeAddress);
-    }
+        @DeleteMapping("/{id}/addresses/{typeAddress}")
+        @Operation(summary = "Delete address by person id and type address")
+        @ApiResponses({
+                        @ApiResponse(responseCode = "200", description = "Address deleted"),
+                        @ApiResponse(responseCode = "404", description = "Person not found")
+        })
+        @ResponseStatus(HttpStatus.NO_CONTENT)
+        public void deleteAddressByPersonIdAndTypeAddress(@PathVariable UUID id,
+                        @PathVariable PersonAddress.TypeAddress typeAddress) {
+                service.deleteCurrentByPersonAndType(id, typeAddress);
+        }
 }

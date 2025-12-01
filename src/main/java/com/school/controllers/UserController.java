@@ -33,7 +33,6 @@ public class UserController {
     private final UserService service;
     private final UserMapper mapper;
 
-    /* qualquer usuário logado pode ver seus próprios dados */
     @GetMapping("/me")
     @Operation(summary = "Dados do usuário logado", description = "Requer sessão OAuth2 (cookie)")
     @ApiResponses({
@@ -41,13 +40,13 @@ public class UserController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
     })
+    @ResponseStatus(HttpStatus.OK)
     public UserDto me(@AuthenticationPrincipal OAuth2User principal) {
         return service.findByEmail(principal.getName())
                 .map(mapper::toDto)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
-    /* lista paginada – só admin */
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Lista paginada de usuários", description = "Requer sessão OAuth2 (cookie)")
@@ -56,11 +55,11 @@ public class UserController {
             @ApiResponse(responseCode = "401", description = "Não autenticado"),
             @ApiResponse(responseCode = "403", description = "Não autorizado")
     })
+    @ResponseStatus(HttpStatus.OK)
     public Page<UserDto> list(Pageable page) {
         return service.findAll(page).map(mapper::toDto);
     }
 
-    /* altera papel – só admin */
     @PatchMapping("/{id}/role")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Altera papel do usuário", description = "Requer sessão OAuth2 (cookie)")
@@ -70,13 +69,12 @@ public class UserController {
             @ApiResponse(responseCode = "403", description = "Não autorizado"),
             @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
     })
+    @ResponseStatus(HttpStatus.OK)
     public UserDto updateRole(@PathVariable UUID id, @RequestParam User.Role role) {
         return mapper.toDto(service.updateRole(id, role));
     }
 
-    /* desativa – só admin */
     @DeleteMapping("/{id}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Desativa usuário", description = "Requer sessão OAuth2 (cookie)")
     @ApiResponses({
@@ -85,6 +83,7 @@ public class UserController {
             @ApiResponse(responseCode = "403", description = "Não autorizado"),
             @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
     })
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deactivate(@PathVariable UUID id) {
         service.deactivate(id);
     }

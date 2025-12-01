@@ -12,7 +12,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,10 +19,9 @@ import org.springframework.security.web.authentication.logout.SecurityContextLog
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -41,7 +39,8 @@ public class AuthenticationController {
             @ApiResponse(responseCode = "404", description = "Usuário não encontrado")
     })
     @GetMapping("/me")
-    public ResponseEntity<UserDto> me(@AuthenticationPrincipal Authentication auth) {
+    @ResponseStatus(HttpStatus.OK)
+    public UserDto me(@AuthenticationPrincipal Authentication auth) {
 
         if (auth == null || !auth.isAuthenticated())
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED);
@@ -49,7 +48,7 @@ public class AuthenticationController {
         String email = auth.getName();
         User user = userService.findByEmail(email)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-        return ResponseEntity.ok().body(mapper.toDto(user));
+        return mapper.toDto(user);
     }
 
     /* Spring Security já cuida do logout – expomos só para documentar */
@@ -59,8 +58,9 @@ public class AuthenticationController {
             @ApiResponse(responseCode = "401", description = "Não autenticado")
     })
     @PostMapping("/logout")
-    public ResponseEntity<?> logout(HttpServletRequest req, HttpServletResponse resp) {
-        new SecurityContextLogoutHandler().logout(req, resp, SecurityContextHolder.getContext().getAuthentication());
-        return ResponseEntity.ok(Map.of("message", "Logged out"));
+    @ResponseStatus(HttpStatus.OK)
+    public void logout(HttpServletRequest req, HttpServletResponse resp) {
+        new SecurityContextLogoutHandler()
+                .logout(req, resp, SecurityContextHolder.getContext().getAuthentication());
     }
 }
