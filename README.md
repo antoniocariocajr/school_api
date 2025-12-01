@@ -44,4 +44,15 @@ jpa, hibernate, spring boot, spring data jpa, springdoc openapi, lombok, mariaDB
     - Delete
     - Find by id
     - Find all
-- 
+- Attendance
+    - Create
+    - Update
+    - Delete
+    - Find by id
+    - Find all
+- Schedule
+    - Create
+    - Update
+    - Delete
+    - Find by id
+    - Find all

@@ -12,4 +12,6 @@ public interface PaymentPlanRepository extends JpaRepository<PaymentPlan, UUID> 
             UUID studentId, UUID schoolTermId, PaymentPlan.Status status);
 
     List<PaymentPlan> findByStudentId(UUID studentId);
+
+    List<PaymentPlan> findByStudentIdAndSchoolTermId(UUID studentId, UUID schoolTermId);
 }
