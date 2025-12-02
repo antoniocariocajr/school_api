@@ -1,52 +1,67 @@
 package com.school.services.impl;
 
+import com.school.controllers.dto.document.DocumentCreateDto;
 import com.school.controllers.dto.document.DocumentDto;
 import com.school.persistence.entities.Document;
 import com.school.persistence.entities.Person;
 import com.school.persistence.repositories.DocumentRepository;
 import com.school.persistence.repositories.PersonRepository;
 import com.school.persistence.storage.FileStorage;
+import com.school.services.DocumentService;
+import com.school.services.mapper.DocumentMapper;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.core.io.Resource;
-
-import java.time.LocalDateTime;
+import org.springframework.http.HttpStatus;
+import java.util.List;
 import java.util.UUID;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
-public class DocumentServiceImpl {
+public class DocumentServiceImpl implements DocumentService {
 
-        private final DocumentRepository docRepo;
-        private final PersonRepository personRepo;
-        private final FileStorage storage; // sua interface para S3 ou disco
+    private final DocumentRepository repo;
+    private final PersonRepository personRepo;
+    private final DocumentMapper mapper;
+    private final FileStorage fileStorage;
 
-        @Transactional
-        public DocumentDto upload(UUID personId, MultipartFile file, Document.Type type, String uploadedBy) {
+    @Override
+    public DocumentDto upload(UUID personId, DocumentCreateDto dto, String uploadedBy) {
+        Person person = personRepo.findById(personId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        String key = fileStorage.save(dto.file());
+        Document doc = repo.save(mapper.toEntity(dto, person, key, uploadedBy));
+        return mapper.toDto(doc);
+    }
 
-            Person person = personRepo.findById(personId).orElseThrow();
+    @Override
+    public List<DocumentDto> listByPerson(UUID personId) {
+        if (!personRepo.existsById(personId))
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        return repo.findByPersonId(personId).stream().map(mapper::toDto).toList();
+    }
 
-            String key = storage.save(file); // retorna chave única
+    @Override
+    public List<DocumentDto> listByPersonAndType(UUID personId, Document.Type type) {
+        return repo.findByPersonIdAndType(personId, type).stream().map(mapper::toDto).toList();
+    }
 
-            Document doc = Document.builder()
-                    .person(person)
-                    .originalName(file.getOriginalFilename())
-                    .contentType(file.getContentType())
-                    .size(file.getSize())
-                    .storageKey(key)
-                    .type(type)
-                    .uploadedAt(LocalDateTime.now())
-                    .uploadedBy(uploadedBy)
-                    .build();
+    @Override
+    public Resource download(UUID documentId) {
+        Document doc = repo.findById(documentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        return fileStorage.load(doc.getStorageKey());
+    }
 
-            return DocumentDto.from(docRepo.save(doc));
-        }
-
-        public Resource download(UUID docId) {
-            Document doc = docRepo.findById(docId).orElseThrow();
-            return storage.load(doc.getStorageKey());
-        }
-
+    @Override
+    public void delete(UUID documentId) {
+        Document doc = repo.findById(documentId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        fileStorage.delete(doc.getStorageKey());
+        repo.delete(doc);
+    }
 }
