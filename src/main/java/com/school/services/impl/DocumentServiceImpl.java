@@ -19,9 +19,12 @@ import org.springframework.http.HttpStatus;
 import java.util.List;
 import java.util.UUID;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class DocumentServiceImpl implements DocumentService {
 
     private final DocumentRepository repo;
@@ -31,10 +34,13 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public DocumentDto upload(UUID personId, DocumentCreateDto dto, String uploadedBy) {
+        log.info("Uploading document for person {}", personId);
         Person person = personRepo.findById(personId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         String key = fileStorage.save(dto.file());
+        log.debug("File saved with key {}", key);
         Document doc = repo.save(mapper.toEntity(dto, person, key, uploadedBy));
+        log.info("Document metadata saved with ID {}", doc.getId());
         return mapper.toDto(doc);
     }
 
@@ -52,6 +58,7 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public Resource download(UUID documentId) {
+        log.info("Downloading document {}", documentId);
         Document doc = repo.findById(documentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         return fileStorage.load(doc.getStorageKey());
@@ -59,9 +66,11 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public void delete(UUID documentId) {
+        log.info("Deleting document {}", documentId);
         Document doc = repo.findById(documentId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         fileStorage.delete(doc.getStorageKey());
         repo.delete(doc);
+        log.info("Document {} deleted", documentId);
     }
 }

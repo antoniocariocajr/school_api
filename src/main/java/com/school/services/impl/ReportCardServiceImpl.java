@@ -31,9 +31,12 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.UUID;
 
+import lombok.extern.slf4j.Slf4j;
+
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class ReportCardServiceImpl implements ReportCardService {
 
     private final ReportCardRepository repo;
@@ -45,16 +48,21 @@ public class ReportCardServiceImpl implements ReportCardService {
 
     @Override
     public ReportCardDto create(ReportCardCreateDto dto) {
+        log.info("Creating report card for enrollment {} and term {}", dto.enrollmentId(), dto.schoolTermId());
         Enrollment enrollment = enrollmentRepo.findById(dto.enrollmentId())
                 .orElseThrow(() -> new BusinessException("Matrícula não encontrada"));
         SchoolTerm term = termRepo.findById(dto.schoolTermId())
                 .orElseThrow(() -> new BusinessException("Período letivo não encontrado"));
 
-        if (repo.findByEnrollmentIdAndSchoolTermId(enrollment.getId(), term.getId()).isPresent())
+        if (repo.findByEnrollmentIdAndSchoolTermId(enrollment.getId(), term.getId()).isPresent()) {
+            log.warn("Report card already exists for enrollment {} and term {}", enrollment.getId(), term.getId());
             throw new BusinessException("Boletim já existe para esta matrícula/termo");
+        }
 
         ReportCard card = mapper.toEntity(dto, enrollment, term);
-        return mapper.toDto(repo.save(card));
+        ReportCard saved = repo.save(card);
+        log.info("Report card created with ID: {}", saved.getId());
+        return mapper.toDto(saved);
     }
 
     @Override
@@ -80,6 +88,7 @@ public class ReportCardServiceImpl implements ReportCardService {
 
     @Override
     public ReportCardDto updateRemarks(UUID id, String remarks) {
+        log.info("Updating remarks for report card {}", id);
         ReportCard card = repo.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         card.setRemarks(remarks);
@@ -89,33 +98,43 @@ public class ReportCardServiceImpl implements ReportCardService {
     /* Job – pode ser chamado por endpoint ou scheduler */
     @Override
     public void generateForTerm(UUID schoolTermId) {
+        log.info("Generating report cards for term {}", schoolTermId);
         List<Enrollment> enrollments = enrollmentRepo.findBySchoolTermId(schoolTermId);
+        log.info("Found {} enrollments for term {}", enrollments.size(), schoolTermId);
+
         for (Enrollment en : enrollments) {
-            List<Grade> grades = gradeRepo.findByEnrollmentId(en.getId());
-            BigDecimal avg = grades.stream()
-                    .map(g -> g.getValue().multiply(g.getWeight()))
-                    .reduce(BigDecimal.ZERO, BigDecimal::add)
-                    .divide(BigDecimal.ONE, 2, RoundingMode.HALF_EVEN);
+            try {
+                List<Grade> grades = gradeRepo.findByEnrollmentId(en.getId());
+                BigDecimal avg = grades.stream()
+                        .map(g -> g.getValue().multiply(g.getWeight()))
+                        .reduce(BigDecimal.ZERO, BigDecimal::add)
+                        .divide(BigDecimal.ONE, 2, RoundingMode.HALF_EVEN);
 
-            long totalClasses = attendanceRepo.countByEnrollmentId(en.getId());
-            long present = attendanceRepo.countByEnrollmentIdAndStatus(en.getId(), Attendance.Status.PRESENT);
-            BigDecimal freq = totalClasses == 0 ? BigDecimal.ZERO
-                    : BigDecimal.valueOf(present).divide(BigDecimal.valueOf(totalClasses), 4, RoundingMode.HALF_EVEN)
-                            .multiply(BigDecimal.valueOf(100));
+                long totalClasses = attendanceRepo.countByEnrollmentId(en.getId());
+                long present = attendanceRepo.countByEnrollmentIdAndStatus(en.getId(), Attendance.Status.PRESENT);
+                BigDecimal freq = totalClasses == 0 ? BigDecimal.ZERO
+                        : BigDecimal.valueOf(present)
+                                .divide(BigDecimal.valueOf(totalClasses), 4, RoundingMode.HALF_EVEN)
+                                .multiply(BigDecimal.valueOf(100));
 
-            Status status = computeStatus(avg, freq);
+                Status status = computeStatus(avg, freq);
 
-            ReportCard card = repo.findByEnrollmentIdAndSchoolTermId(en.getId(), schoolTermId)
-                    .orElse(ReportCard.builder()
-                            .enrollment(en)
-                            .schoolTerm(en.getSchoolClass().getSchoolTerm())
-                            .build());
+                ReportCard card = repo.findByEnrollmentIdAndSchoolTermId(en.getId(), schoolTermId)
+                        .orElse(ReportCard.builder()
+                                .enrollment(en)
+                                .schoolTerm(en.getSchoolClass().getSchoolTerm())
+                                .build());
 
-            card.setFinalGrade(avg);
-            card.setFinalAttendance(freq);
-            card.setStatus(status);
-            repo.save(card);
+                card.setFinalGrade(avg);
+                card.setFinalAttendance(freq);
+                card.setStatus(status);
+                repo.save(card);
+                log.debug("Processed report card for enrollment {}", en.getId());
+            } catch (Exception e) {
+                log.error("Error processing report card for enrollment {}", en.getId(), e);
+            }
         }
+        log.info("Finished generating report cards for term {}", schoolTermId);
     }
 
     private Status computeStatus(BigDecimal grade, BigDecimal freq) {
